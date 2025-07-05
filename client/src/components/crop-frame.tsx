@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import { CropFrame as CropFrameType } from "@shared/schema";
 
 interface CropFrameProps {

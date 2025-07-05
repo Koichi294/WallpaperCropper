@@ -66,14 +66,35 @@ export default function CroppingTool() {
   }, []);
 
   const handleMonitorAdd = useCallback(() => {
+    const newMonitorId = String(Date.now()); // より確実なユニークID
+    const monitorNumber = monitors.length + 1;
     const newMonitor = {
-      id: String(monitors.length + 1),
-      name: `モニター ${monitors.length + 1}`,
+      id: newMonitorId,
+      name: `モニター ${monitorNumber}`,
       inches: 24,
       color: `hsl(${(monitors.length * 60) % 360}, 70%, 50%)`
     };
+    
     setMonitors(prev => [...prev, newMonitor]);
-  }, [monitors.length]);
+    
+    // 新しいCropFrameも同時に作成
+    if (uploadedImage) {
+      const newFrame: CropFrame = {
+        id: `frame-${newMonitorId}`,
+        name: newMonitor.name,
+        x: 50 + (monitors.length * 200),
+        y: 50 + (monitors.length * 100),
+        width: 300,
+        height: Math.round(300 / (selectedAspectRatio.width / selectedAspectRatio.height)),
+        aspectRatio: selectedAspectRatio,
+        monitorInches: newMonitor.inches,
+        color: newMonitor.color,
+        isBaseFrame: false
+      };
+      
+      setCropFrames(prev => [...prev, newFrame]);
+    }
+  }, [monitors, uploadedImage, selectedAspectRatio]);
 
   const handleMonitorUpdate = useCallback((id: string, updates: Partial<typeof monitors[0]>) => {
     setMonitors(prev => 

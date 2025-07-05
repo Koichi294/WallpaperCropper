@@ -96,6 +96,7 @@ This is a modern full-stack image cropping tool application built with React, Ty
 ```
 Changelog:
 - July 05, 2025. Initial setup
+- July 05, 2025. Added individual frame aspect ratio settings and base frame auto-scaling functionality
 ```
 
 ## User Preferences

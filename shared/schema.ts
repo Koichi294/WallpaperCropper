@@ -29,6 +29,7 @@ export interface CropFrame {
   aspectRatio: AspectRatio;
   monitorInches: number;
   color: string;
+  isBaseFrame?: boolean; // 基準となる枠を指定
 }
 
 export interface AspectRatio {

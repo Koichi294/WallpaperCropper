@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { Crop, Settings, HelpCircle } from "lucide-react";
 import ImageUploadZone from "@/components/image-upload-zone";
 import CropSettings from "@/components/crop-settings";
@@ -37,7 +37,8 @@ export default function CroppingTool() {
       height: Math.round(300 / (selectedAspectRatio.width / selectedAspectRatio.height)),
       aspectRatio: selectedAspectRatio,
       monitorInches: monitor.inches,
-      color: monitor.color
+      color: monitor.color,
+      isBaseFrame: index === 0 // 最初のフレームを基準にする
     }));
     setCropFrames(defaultFrames);
   }, [monitors, selectedAspectRatio]);
@@ -92,6 +93,48 @@ export default function CroppingTool() {
     );
   }, [monitors]);
 
+  const handleBaseFrameChange = useCallback((frameId: string) => {
+    setCropFrames(prev => 
+      prev.map(frame => ({
+        ...frame,
+        isBaseFrame: frame.id === frameId
+      }))
+    );
+  }, []);
+
+  // インチサイズに基づいてフレームサイズを自動調整
+  const adjustFrameSizesByInches = useCallback(() => {
+    const baseFrame = cropFrames.find(frame => frame.isBaseFrame);
+    if (!baseFrame) return;
+
+    setCropFrames(prev => 
+      prev.map(frame => {
+        if (frame.id === baseFrame.id) return frame;
+        
+        // 基準フレームに対するインチ比を計算
+        const scaleRatio = frame.monitorInches / baseFrame.monitorInches;
+        const aspectRatio = frame.aspectRatio.width / frame.aspectRatio.height;
+        
+        // 基準フレームのサイズをスケール
+        const newWidth = baseFrame.width * scaleRatio;
+        const newHeight = newWidth / aspectRatio;
+        
+        return {
+          ...frame,
+          width: newWidth,
+          height: newHeight
+        };
+      })
+    );
+  }, [cropFrames]);
+
+  // フレームのインチサイズが変更されたときに自動調整
+  useEffect(() => {
+    if (cropFrames.length > 0) {
+      adjustFrameSizesByInches();
+    }
+  }, [cropFrames.map(f => f.monitorInches).join(','), cropFrames.find(f => f.isBaseFrame)?.id]);
+
   return (
     <div className="h-screen bg-slate-50 flex flex-col">
       {/* Header */}
@@ -131,10 +174,13 @@ export default function CroppingTool() {
               customAspectRatio={customAspectRatio}
               isCustomRatio={isCustomRatio}
               monitors={monitors}
+              cropFrames={cropFrames}
               onAspectRatioChange={handleAspectRatioChange}
               onCustomAspectRatioChange={setCustomAspectRatio}
               onMonitorAdd={handleMonitorAdd}
               onMonitorUpdate={handleMonitorUpdate}
+              onCropFrameUpdate={handleCropFrameUpdate}
+              onBaseFrameChange={handleBaseFrameChange}
             />
           </div>
 

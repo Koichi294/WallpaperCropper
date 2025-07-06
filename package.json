@@ -3,9 +3,13 @@
   "version": "1.0.0",
   "type": "module",
   "license": "MIT",
+  "homepage": "https://Koichi294.github.io/WallpaperCropper",
   "scripts": {
     "dev": "NODE_ENV=development tsx server/index.ts",
     "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
+    "build:gh-pages": "vite build --base=/WallpaperCropper/",
+    "predeploy": "npm run build:gh-pages",
+    "deploy": "gh-pages -d dist/public",
     "start": "NODE_ENV=production node dist/index.js",
     "check": "tsc",
     "db:push": "drizzle-kit push"
@@ -98,6 +102,7 @@
     "autoprefixer": "^10.4.20",
     "drizzle-kit": "^0.30.4",
     "esbuild": "^0.25.0",
+    "gh-pages": "^6.3.0",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.17",
     "tsx": "^4.19.1",
